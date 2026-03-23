@@ -1,0 +1,21 @@
+packages:
+  "lucide-react": "For UI icons and futuristic symbols"
+
+images:
+  - path: "artifacts/journey-to-mars/public/images/mars-planet.png"
+    description: "Highly detailed cinematic view of the red planet Mars in deep space, glowing atmosphere, high resolution, dark background"
+    aspect_ratio: "1:1"
+  - path: "artifacts/journey-to-mars/public/images/mars-surface.png"
+    description: "Cinematic ultra-realistic wide shot of the dusty, rocky red surface of Mars, alien landscape, dramatic lighting"
+    aspect_ratio: "16:9"
+  - path: "artifacts/journey-to-mars/public/images/spacecraft.png"
+    description: "Sleek futuristic interplanetary spacecraft travelling through deep space, glowing blue thrusters, dark cosmic background"
+    aspect_ratio: "16:9"
+  - path: "artifacts/journey-to-mars/public/images/rocket-launch.png"
+    description: "Powerful heavy lift rocket launching into space, intense bright orange flames and exhaust plumes, dramatic low angle"
+    aspect_ratio: "3:4"
+
+notes:
+  - "This is a frontend-only interactive storytelling app. No backend required."
+  - "Using pure CSS animations and IntersectionObserver for scroll-driven interactions."
+  - "Starfield is generated via CSS box-shadows."
