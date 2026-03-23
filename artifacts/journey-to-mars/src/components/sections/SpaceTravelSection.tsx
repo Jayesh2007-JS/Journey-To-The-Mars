@@ -27,11 +27,44 @@ export function SpaceTravelSection() {
   const currentPos = activeMilestone !== null ? milestones[activeMilestone].pos : 0;
   const commsDelay = activeMilestone !== null ? (activeMilestone < 2 ? 4 : 12) : 4;
 
+  const constellations = [
+    { x: 10, y: 20 }, { x: 15, y: 30 }, { x: 25, y: 15 },
+    { x: 70, y: 80 }, { x: 80, y: 70 }, { x: 85, y: 85 },
+    { x: 80, y: 20 }, { x: 90, y: 25 }, { x: 85, y: 35 }
+  ];
+
   return (
     <section id="travel" ref={sectionRef} className={`relative min-h-screen flex flex-col justify-center py-20 px-6 transition-all duration-1000 ${warpSpeed ? 'animate-warp' : ''}`}>
       
       {/* Background Star Map Grid */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.4) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+
+      {/* Constellation Pattern */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <svg className="w-full h-full opacity-30 animate-pulse">
+          <line x1="10%" y1="20%" x2="15%" y2="30%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+          <line x1="15%" y1="30%" x2="25%" y2="15%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+          <line x1="70%" y1="80%" x2="80%" y2="70%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+          <line x1="80%" y1="70%" x2="85%" y2="85%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+          <line x1="80%" y1="20%" x2="90%" y2="25%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+          <line x1="90%" y1="25%" x2="85%" y2="35%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+        </svg>
+        {constellations.map((c, i) => (
+          <div key={i} className="absolute w-1 h-1 bg-white rounded-full shadow-[0_0_5px_#fff]" style={{ top: `${c.y}%`, left: `${c.x}%` }} />
+        ))}
+      </div>
+
+      {/* Warp Speed Streak Effect */}
+      {warpSpeed && (
+        <div className="absolute inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <div className="w-full h-full" style={{
+            background: 'radial-gradient(circle, transparent 20%, #000 100%)',
+            boxShadow: 'inset 0 0 100px rgba(255,255,255,0.5)'
+          }} />
+          <div className="absolute w-[200vw] h-[2px] bg-white opacity-50 rotate-45 transform scale-x-[20] transition-transform duration-1000" />
+          <div className="absolute w-[200vw] h-[2px] bg-white opacity-50 -rotate-45 transform scale-x-[20] transition-transform duration-1000 delay-100" />
+        </div>
+      )}
 
       <div ref={ref} className="max-w-6xl mx-auto w-full z-10">
         <div className={`text-center mb-24 reveal-base ${isRevealed ? 'is-revealed' : ''}`}>
@@ -58,14 +91,15 @@ export function SpaceTravelSection() {
             />
           </div>
 
-          {/* Spacecraft Dot */}
+          {/* Spacecraft Dot (SVG) */}
           <div 
-            className="absolute top-1/2 -translate-y-1/2 w-6 h-6 z-20 transition-all duration-1000 ease-in-out"
+            className="absolute top-1/2 -translate-y-1/2 w-8 h-8 z-20 transition-all duration-1000 ease-in-out flex items-center justify-center drop-shadow-[0_0_15px_rgba(0,210,255,0.8)]"
             style={{ left: `calc(${currentPos}% + 40px)` }}
           >
-            <div className="w-full h-full bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,1)] relative">
-               <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-2 bg-blue-500 rounded-full blur-[2px] animate-pulse" />
-            </div>
+            <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-white transform rotate-90">
+              <path d="M12 2L2 22L12 18L22 22L12 2Z" fill="currentColor" />
+            </svg>
+            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-6 h-2 bg-blue-500 rounded-full blur-[3px] animate-pulse" />
           </div>
 
           {/* Nodes */}
@@ -76,12 +110,17 @@ export function SpaceTravelSection() {
               className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 group outline-none z-10"
               style={{ left: `calc(${m.pos}% + 40px)` }}
             >
-              <div className={`w-4 h-4 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
-                activeMilestone === idx 
-                  ? 'bg-background border-accent scale-150 shadow-[0_0_20px_rgba(0,210,255,0.8)]' 
-                  : 'bg-background border-white/30 hover:border-white/80 scale-100'
-              }`}>
-                {activeMilestone === idx && <div className="w-1.5 h-1.5 bg-accent rounded-full" />}
+              <div className="relative">
+                {activeMilestone === idx && (
+                  <div className="absolute inset-0 w-full h-full rounded-full border border-accent animate-ripple" />
+                )}
+                <div className={`w-4 h-4 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
+                  activeMilestone === idx 
+                    ? 'bg-background border-accent scale-150 shadow-[0_0_20px_rgba(0,210,255,0.8)]' 
+                    : 'bg-background border-white/30 hover:border-white/80 scale-100'
+                }`}>
+                  {activeMilestone === idx && <div className="w-1.5 h-1.5 bg-accent rounded-full" />}
+                </div>
               </div>
               
               {/* Day Label */}
@@ -96,6 +135,17 @@ export function SpaceTravelSection() {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 md:px-0 transition-all duration-300">
               <div className="glass-panel p-6 rounded-2xl shadow-2xl relative animate-in fade-in zoom-in-95 slide-in-from-bottom-10 group glitch-hover border-accent/20">
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-background border-b border-r border-accent/20 rotate-45 backdrop-blur-md" />
+                
+                <div className="text-[10px] font-mono text-accent mb-3 tracking-widest uppercase flex items-center justify-between border-b border-white/10 pb-2">
+                  <span>Data Transmission</span>
+                  <div className="flex items-end gap-0.5 h-3">
+                    <div className="w-1 bg-accent animate-[data-bar_0.8s_ease-in-out_infinite]" />
+                    <div className="w-1 bg-accent animate-[data-bar_1.2s_ease-in-out_infinite_0.2s]" />
+                    <div className="w-1 bg-accent animate-[data-bar_0.9s_ease-in-out_infinite_0.4s]" />
+                    <div className="w-1 bg-accent animate-[data-bar_1.5s_ease-in-out_infinite_0.1s]" />
+                  </div>
+                </div>
+
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-accent/10 rounded-xl group-hover:bg-accent/20 transition-colors">
                     <Info className="w-6 h-6 text-accent" />

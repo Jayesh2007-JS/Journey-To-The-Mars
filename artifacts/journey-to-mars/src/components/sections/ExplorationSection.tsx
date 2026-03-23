@@ -52,19 +52,23 @@ export function ExplorationSection() {
     }
   }, [isRevealed]);
 
-  const finalText = "FIRST STEPS TAKEN. HUMANITY'S NEW HOME.";
+  const finalText = "END OF TRANSMISSION";
 
   return (
-    <section id="exploration" className="relative min-h-screen pt-24 pb-40 px-6 overflow-hidden">
+    <section id="exploration" className="relative min-h-screen pt-0 pb-40 px-6 overflow-hidden">
       
-      {/* Horizon Line Background */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#2a0800] via-[#5c1c04] to-[#8b2500]" />
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-background to-transparent" />
+      {/* Mars Horizon at the top */}
+      <div className="absolute top-0 left-0 w-full h-[200px] z-0">
+        <div className="w-full h-full animate-[horizon-shimmer_8s_infinite]" style={{
+          background: 'linear-gradient(180deg, #1a0500 0%, #3d0f00 20%, #8B2500 40%, #c44d0a 50%, #e0791a 55%, #d4622a 60%, #2a0800 80%, #0a0200 100%)'
+        }} />
       </div>
 
-      {/* Animated Rover SVG driving across the horizon */}
-      <div className="absolute bottom-20 -left-32 w-24 h-16 z-10 animate-[drive_30s_linear_infinite]">
+      {/* Base gradient background */}
+      <div className="absolute inset-0 top-[200px] bg-background z-0 pointer-events-none" />
+
+      {/* Animated Rover SVG driving across the terrain line */}
+      <div className="absolute top-[180px] -left-[200px] w-24 h-16 z-10 animate-[rover-drive_40s_linear_infinite]">
         <svg viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Solar Panel */}
           <rect x="20" y="5" width="60" height="5" fill="#3b82f6" />
@@ -74,20 +78,14 @@ export function ExplorationSection() {
           {/* Camera Mast */}
           <line x1="80" y1="25" x2="80" y2="10" stroke="#94a3b8" strokeWidth="2" />
           <circle cx="80" cy="8" r="4" fill="#1e293b" />
-          {/* Wheels (spinning via CSS if we wanted, but static here for simplicity) */}
+          {/* Wheels */}
           <circle cx="25" cy="50" r="8" fill="#1e293b" stroke="#64748b" strokeWidth="2" />
           <circle cx="50" cy="50" r="8" fill="#1e293b" stroke="#64748b" strokeWidth="2" />
           <circle cx="75" cy="50" r="8" fill="#1e293b" stroke="#64748b" strokeWidth="2" />
         </svg>
-        <style>{`
-          @keyframes drive {
-            0% { transform: translateX(-10vw); }
-            100% { transform: translateX(110vw); }
-          }
-        `}</style>
       </div>
 
-      <div className="max-w-7xl mx-auto w-full z-20 relative">
+      <div className="max-w-7xl mx-auto w-full z-20 relative pt-64">
         <div ref={ref} className="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8 bg-background/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5">
           <div className={`reveal-left ${isRevealed ? 'is-revealed' : ''}`}>
             <h2 className="text-sm font-mono text-primary tracking-[0.3em] uppercase mb-4">Phase 04: Survive</h2>
@@ -113,8 +111,8 @@ export function ExplorationSection() {
                 className={`group relative glass-panel bg-background/60 p-8 rounded-3xl overflow-hidden cursor-pointer hover:bg-white/10 transition-all duration-500 hover:-translate-y-2 reveal-base border border-white/10 ${isRevealed ? 'is-revealed' : ''}`}
                 style={{ transitionDelay: `${200 + idx * 100}ms` }}
               >
-                {/* Holographic Scan Line Effect */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-[50px] w-full -translate-y-[100%] group-hover:animate-[scan-line_1.5s_ease-in-out_infinite]" />
+                {/* Holographic Scan Line Effect on Hover */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-[50px] w-full -translate-y-[100%] hidden group-hover:block group-hover:animate-scan-sweep pointer-events-none" />
 
                 {/* Background glow on hover */}
                 <div className={`absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-current to-transparent opacity-0 group-hover:opacity-10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 transition-opacity duration-500 ${mod.color}`} />
@@ -123,28 +121,21 @@ export function ExplorationSection() {
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border bg-background/80 backdrop-blur-md ${mod.border} z-10`}>
                     <Icon className={`w-7 h-7 ${mod.color}`} />
                   </div>
-                  
-                  {/* Animated Chart */}
-                  <div className="flex items-end gap-1 h-10 z-10">
-                    {[1, 2, 3, 4, 5].map((bar) => (
-                      <div 
-                        key={bar}
-                        className={`w-1.5 rounded-t-sm ${mod.barColor} opacity-50 group-hover:opacity-100 transition-opacity`}
-                        style={{
-                          height: `${Math.random() * 60 + 20}%`,
-                          animation: `pulse-height ${0.5 + Math.random() * 1}s ease-in-out infinite alternate`
-                        }}
-                      />
-                    ))}
-                  </div>
                 </div>
 
                 <h4 className="text-2xl font-display font-semibold text-white mb-3 group-hover:text-primary transition-colors relative z-10">
                   {mod.title}
                 </h4>
-                <p className="text-muted-foreground leading-relaxed relative z-10">
+                <p className="text-muted-foreground leading-relaxed relative z-10 mb-8">
                   {mod.desc}
                 </p>
+
+                {/* Data Bars at bottom */}
+                <div className="absolute bottom-4 right-8 flex items-end gap-1 h-6 z-10 opacity-50 group-hover:opacity-100 transition-opacity">
+                  <div className={`w-1.5 rounded-t-sm ${mod.barColor} animate-[data-bar_1s_ease-in-out_infinite]`} />
+                  <div className={`w-1.5 rounded-t-sm ${mod.barColor} animate-[data-bar_0.8s_ease-in-out_infinite_0.2s]`} />
+                  <div className={`w-1.5 rounded-t-sm ${mod.barColor} animate-[data-bar_1.2s_ease-in-out_infinite_0.4s]`} />
+                </div>
 
                 {/* Decorative UI line */}
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-white/5 transition-colors">
@@ -156,30 +147,25 @@ export function ExplorationSection() {
         </div>
 
         {/* Final Text Reveal */}
-        <div className="mt-32 text-center h-24">
+        <div className="mt-32 text-center h-24 flex items-center justify-center">
           {showFinalText && (
-            <h1 className="text-2xl md:text-4xl font-display font-bold text-white tracking-[0.2em] uppercase">
-              {finalText.split('').map((char, index) => (
-                <span 
-                  key={index}
-                  className="inline-block animate-[count-up_0.1s_forwards]"
-                  style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
-                >
-                  {char === ' ' ? '\u00A0' : char}
-                </span>
-              ))}
-            </h1>
+            <div className="inline-block p-6 rounded-lg border border-accent/30 bg-background/50 backdrop-blur-sm shadow-[inset_0_0_20px_rgba(0,210,255,0.2)] animate-in fade-in zoom-in duration-2000">
+              <h1 className="text-xl md:text-2xl font-display font-bold text-white tracking-[0.4em] uppercase">
+                {finalText.split('').map((char, index) => (
+                  <span 
+                    key={index}
+                    className="inline-block animate-[count-up_0.1s_forwards]"
+                    style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
+                  >
+                    {char === ' ' ? '\u00A0' : char}
+                  </span>
+                ))}
+              </h1>
+            </div>
           )}
         </div>
 
       </div>
-      
-      <style>{`
-        @keyframes pulse-height {
-          from { transform: scaleY(0.5); transform-origin: bottom; }
-          to { transform: scaleY(1); transform-origin: bottom; }
-        }
-      `}</style>
     </section>
   );
 }

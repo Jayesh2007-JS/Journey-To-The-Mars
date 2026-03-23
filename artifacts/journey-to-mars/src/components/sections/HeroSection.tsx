@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowDown, Users, Navigation, Clock, Rocket } from 'lucide-react';
+import { ArrowDown, Users, Navigation, Clock, Rocket, ChevronDown } from 'lucide-react';
 import { useScrollReveal } from '@/hooks/use-scroll-reveal';
 
 export function HeroSection() {
@@ -34,6 +34,32 @@ export function HeroSection() {
 
   return (
     <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden pt-20">
+      {/* Radar Sweep Background */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[150vw] md:w-[150vh] md:h-[150vh] rounded-full border border-accent/10 z-0">
+        <div 
+          className="absolute inset-0 rounded-full animate-radar-rotate"
+          style={{ background: 'conic-gradient(from 0deg, rgba(0,210,255,0) 0deg, rgba(0,210,255,0) 270deg, rgba(0,210,255,0.05) 350deg, rgba(0,210,255,0.4) 360deg)' }}
+        />
+      </div>
+
+      {/* Horizontal Scan Line */}
+      <div className="absolute left-0 right-0 h-[2px] bg-accent/50 shadow-[0_0_10px_rgba(0,210,255,0.8)] z-50 pointer-events-none animate-scan-sweep" style={{ top: 0 }} />
+
+      {/* 4 Corner Readouts */}
+      <div className="absolute top-6 left-6 text-green-400 font-mono text-[10px] tracking-widest z-20 flex items-center gap-2">
+        <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-blink-dot" />
+        SYS.NOMINAL
+      </div>
+      <div className="absolute top-6 right-6 text-green-400 font-mono text-[10px] tracking-widest z-20 text-right">
+        FUEL 100%
+      </div>
+      <div className="absolute bottom-6 left-6 text-green-400 font-mono text-[10px] tracking-widest z-20">
+        CREW: 6/6
+      </div>
+      <div className="absolute bottom-6 right-6 text-green-400 font-mono text-[10px] tracking-widest z-20 text-right">
+        ORBIT ALT: 408 KM
+      </div>
+
       <div 
         ref={ref}
         className="relative z-10 flex flex-col items-center text-center max-w-5xl mx-auto flex-grow justify-center"
@@ -46,7 +72,7 @@ export function HeroSection() {
         </div>
 
         <h1 className={`text-7xl sm:text-8xl md:text-[10rem] font-display font-black tracking-tighter mb-2 uppercase leading-[0.8] reveal-base delay-100 ${isRevealed ? 'is-revealed' : ''}`}>
-          <span className="block text-white drop-shadow-lg text-glow-cyan">Journey To</span>
+          <span className="block text-white drop-shadow-lg text-glow-cyan animate-[glitch_8s_infinite]">Journey To</span>
           <span className="block text-gradient-mars text-glow-orange pb-4">Mars</span>
         </h1>
 
@@ -68,10 +94,18 @@ export function HeroSection() {
             <ArrowDown className="w-5 h-5 group-hover:translate-y-1 transition-transform" />
           </span>
         </button>
+
+        {/* Scroll Indicator */}
+        <div className={`mt-16 flex flex-col items-center gap-2 text-white/50 reveal-base delay-500 ${isRevealed ? 'is-revealed' : ''}`}>
+          <div className="w-6 h-10 border-2 border-white/20 rounded-full flex justify-center p-1">
+            <div className="w-1 h-2 bg-white/50 rounded-full animate-bounce" />
+          </div>
+          <ChevronDown className="w-4 h-4 animate-pulse" />
+        </div>
       </div>
 
       {/* Giant orbit ring at the bottom */}
-      <div className="absolute -bottom-1/2 left-1/2 -translate-x-1/2 w-[120vw] h-[120vw] md:w-[80vw] md:h-[80vw] rounded-full border border-dashed border-white/20 animate-spin-slow pointer-events-none z-0">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vw] md:w-[90vw] md:h-[90vw] rounded-full border border-dashed border-white/20 animate-[spin-slow_120s_linear_infinite] pointer-events-none z-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-accent rounded-full shadow-[0_0_10px_rgba(0,210,255,0.8)]" />
       </div>
     </section>

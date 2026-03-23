@@ -6,6 +6,9 @@ export function MarsApproachSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(0.3);
   const [countdown, setCountdown] = useState(263); // 4:23
+  const [typedText, setTypedText] = useState("");
+
+  const fullText = "MISSION CONTROL — HOUSTON";
 
   // Parallax Zoom Effect tied to section scroll
   useEffect(() => {
@@ -36,6 +39,22 @@ export function MarsApproachSection() {
       return () => clearInterval(timer);
     }
   }, [isRevealed, countdown]);
+
+  // Typing effect
+  useEffect(() => {
+    if (isRevealed) {
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < fullText.length) {
+          setTypedText(fullText.substring(0, i + 1));
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 100);
+      return () => clearInterval(interval);
+    }
+  }, [isRevealed]);
 
   const formatCountdown = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -70,38 +89,64 @@ export function MarsApproachSection() {
           </svg>
         </div>
 
-        {/* Pure CSS Mars Planet */}
-        <div 
-          className="relative rounded-full transition-transform duration-100 ease-out z-20 animate-[spin-slow_60s_linear_infinite]"
-          style={{ 
-            transform: `scale(${zoom})`,
-            width: '500px',
-            height: '500px',
-            background: 'radial-gradient(circle at 30% 30%, #C1440E, #6B1F0A)',
-            boxShadow: `
-              inset -40px -40px 100px rgba(0,0,0,0.9),
-              0 0 80px 40px rgba(193, 68, 14, 0.3),
-              0 0 0 2px rgba(255, 150, 50, 0.2)
-            `
-          }}
-        >
-          {/* Subtle Terrain Textures via multiple box shadows to simulate craters/highlands */}
-          <div className="absolute inset-0 rounded-full opacity-30" style={{
-            background: 'transparent',
-            boxShadow: `
-              20px 40px 30px #8B2500,
-              -50px 80px 40px #501000,
-              80px -20px 50px #A03000,
-              -30px -60px 40px #400800
-            `
-          }} />
-          
-          {/* Polar Ice Cap */}
-          <div className="absolute top-[5%] left-[40%] w-[20%] h-[10%] bg-white/80 rounded-full blur-[2px] transform -rotate-12" />
-          
-          {/* Additional craters */}
-          <div className="absolute top-[30%] left-[60%] w-[15%] h-[15%] rounded-full border-t border-black/30 border-b border-white/10" />
-          <div className="absolute top-[60%] left-[20%] w-[25%] h-[20%] rounded-full border-t border-black/40 border-b border-white/5" />
+        {/* Pure CSS Mars Planet Container */}
+        <div className="relative z-20 flex items-center justify-center">
+          {/* Atmosphere Glow */}
+          <div 
+            className="absolute rounded-full blur-sm"
+            style={{ 
+              transform: `scale(${zoom})`,
+              width: '620px',
+              height: '620px',
+              background: 'radial-gradient(circle, rgba(255,100,30,0.15) 0%, transparent 70%)',
+            }}
+          />
+
+          <div 
+            className="relative rounded-full transition-transform duration-100 ease-out z-20 animate-[spin-slow_60s_linear_infinite] overflow-hidden"
+            style={{ 
+              transform: `scale(${zoom})`,
+              width: '500px',
+              height: '500px',
+              background: 'radial-gradient(circle at 30% 30%, #C1440E, #6B1F0A)',
+              boxShadow: `
+                inset -40px -40px 100px rgba(0,0,0,0.9),
+                0 0 80px 40px rgba(193, 68, 14, 0.3),
+                0 0 0 2px rgba(255, 150, 50, 0.2)
+              `
+            }}
+          >
+            {/* Surface Line Texture */}
+            <div className="absolute inset-0 opacity-[0.03]" style={{ background: 'repeating-conic-gradient(from 0deg, rgba(0,0,0,1) 0deg 10deg, transparent 10deg 20deg)' }} />
+
+            {/* Subtle Terrain Textures via multiple box shadows */}
+            <div className="absolute inset-0 rounded-full opacity-30" style={{
+              background: 'transparent',
+              boxShadow: `
+                20px 40px 30px #8B2500,
+                -50px 80px 40px #501000,
+                80px -20px 50px #A03000,
+                -30px -60px 40px #400800
+              `
+            }} />
+
+            {/* Dust Storm Band */}
+            <div className="absolute top-1/2 left-0 w-[150%] h-[15%] bg-[#d48a55]/20 blur-md rounded-[100%] animate-[rover-drive_8s_linear_infinite]" />
+            
+            {/* Polar Ice Cap */}
+            <div className="absolute top-[5%] left-[40%] w-[20%] h-[10%] bg-white/80 rounded-full blur-[2px] transform -rotate-12" />
+            
+            {/* Additional craters */}
+            <div className="absolute top-[30%] left-[60%] w-[15%] h-[15%] rounded-full border-t border-black/30 border-b border-white/10" />
+            <div className="absolute top-[60%] left-[20%] w-[25%] h-[20%] rounded-full border-t border-black/40 border-b border-white/5" />
+
+            {/* Olympus Mons Silhouette */}
+            <div className="absolute bottom-[2%] left-1/2 -translate-x-1/2 w-[40%] h-[10%]">
+              <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="w-full h-full text-[#4a1500] opacity-80">
+                <path d="M0,20 L20,15 L35,5 L50,0 L65,5 L80,15 L100,20 Z" fill="currentColor" />
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* Floating UI Elements */}
@@ -111,7 +156,7 @@ export function MarsApproachSection() {
             <div className={`absolute top-1/4 left-6 md:left-24 glass-panel p-6 rounded-xl border-l-4 border-l-red-500 reveal-left ${isRevealed ? 'is-revealed' : ''}`}>
               <div className="text-xs font-mono text-red-400 mb-2 animate-pulse">WARNING</div>
               <div className="text-sm font-mono text-muted-foreground">ATMOSPHERIC ENTRY IN</div>
-              <div className="text-3xl font-display font-bold text-white tabular-nums">{formatCountdown(countdown)}</div>
+              <div className={`text-3xl font-display font-bold tabular-nums ${countdown < 30 ? 'text-red-500 animate-pulse' : 'text-white'}`}>{formatCountdown(countdown)}</div>
             </div>
             
             <div className={`absolute bottom-1/4 right-6 md:right-24 glass-panel p-6 rounded-xl text-right reveal-right delay-200 ${isRevealed ? 'is-revealed' : ''}`}>
@@ -126,6 +171,12 @@ export function MarsApproachSection() {
                   <div className="text-2xl font-display font-bold text-white">5.5 <span className="text-sm text-muted-foreground">km/s</span></div>
                 </div>
               </div>
+            </div>
+
+            {/* Typing text at the bottom */}
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center text-sm font-mono text-white/50 tracking-widest">
+              {typedText}
+              <span className="inline-block w-2 h-4 bg-white/50 ml-1 animate-[type-cursor_0.8s_infinite]" />
             </div>
 
           </div>
