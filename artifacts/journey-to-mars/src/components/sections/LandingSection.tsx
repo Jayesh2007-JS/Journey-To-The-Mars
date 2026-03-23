@@ -1,11 +1,74 @@
+import { useEffect, useState, useRef } from 'react';
 import { useScrollReveal } from '@/hooks/use-scroll-reveal';
-import { Target, Activity } from 'lucide-react';
+import { useCanvasParticles } from '@/hooks/use-canvas-particles';
+import { ShieldCheck } from 'lucide-react';
+
+const landingEvents = [
+  "EDL SEQUENCE INITIATED",
+  "CHUTE DEPLOYED — MACH 1.7",
+  "HEAT SHIELD JETTISONED",
+  "LANDING CONFIRMED — JEZERO CRATER"
+];
 
 export function LandingSection() {
   const { ref, isRevealed } = useScrollReveal({ threshold: 0.3 });
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
+  const [events, setEvents] = useState<string[]>([]);
+  const [shake, setShake] = useState(false);
+
+  // Screen shake and event sequence
+  useEffect(() => {
+    if (isRevealed) {
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+
+      // Trigger events one by one
+      landingEvents.forEach((event, index) => {
+        setTimeout(() => {
+          setEvents(prev => [...prev, event]);
+        }, (index + 1) * 1000);
+      });
+    }
+  }, [isRevealed]);
+
+  // Martian dust particle system
+  const dustCanvasRef = useCanvasParticles({
+    isActive: isRevealed,
+    spawnRate: 20,
+    createParticle: (ctx, w, h) => ({
+      x: Math.random() * w,
+      y: h + 10, // Spawn from below
+      vx: (Math.random() - 0.5) * 4,
+      vy: -(Math.random() * 8 + 2), // Move up
+      size: Math.random() * 4 + 1,
+      color: ['#c1440e', '#e77d11', '#fda600', '#a03300'][Math.floor(Math.random() * 4)],
+      life: 0,
+      maxLife: Math.random() * 100 + 50,
+      opacity: 0.8
+    }),
+    updateParticle: (p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life++;
+      p.opacity = 0.8 * (1 - (p.life / p.maxLife));
+      return p.life < p.maxLife;
+    },
+    drawParticle: (p, ctx) => {
+      ctx.globalAlpha = p.opacity || 1;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
 
   return (
-    <section id="landing" className="relative min-h-screen flex items-center px-6 overflow-hidden">
+    <section id="landing" ref={sectionRef} className={`relative min-h-screen flex items-center px-6 overflow-hidden ${shake ? 'animate-shake' : ''}`}>
+      
+      {/* Dust Particles Canvas */}
+      <canvas ref={dustCanvasRef} className="absolute inset-0 w-full h-full z-10 pointer-events-none mix-blend-screen opacity-50" />
+
       {/* Mars Surface Background */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -13,35 +76,51 @@ export function LandingSection() {
           alt="Mars Surface"
           className="w-full h-full object-cover object-bottom"
         />
-        {/* Gradients to blend sections */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-transparent" />
-        {/* Dust overlay */}
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/dust.png')] animate-dust pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
       </div>
 
-      <div ref={ref} className="relative z-10 max-w-5xl mx-auto w-full text-center">
-        <div className={`inline-flex items-center gap-3 px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 mb-8 reveal-base ${isRevealed ? 'is-revealed' : ''}`}>
-          <Activity className="w-5 h-5 animate-pulse" />
-          <span className="font-mono text-sm font-semibold tracking-widest uppercase">Telemetry Nominal</span>
+      <div ref={ref} className="relative z-20 max-w-5xl mx-auto w-full text-center">
+        
+        {/* 7 Minutes of Terror header */}
+        <div className={`inline-block mb-12 border-2 border-red-500/50 bg-red-500/10 px-6 py-2 rounded animate-pulse reveal-base ${isRevealed ? 'is-revealed' : ''}`}>
+          <h3 className="text-red-500 font-display font-bold text-2xl tracking-widest uppercase">7 Minutes of Terror</h3>
         </div>
 
-        <h2 className={`text-6xl md:text-8xl lg:text-9xl font-display font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 tracking-tighter mb-6 uppercase reveal-scale delay-100 ${isRevealed ? 'is-revealed' : ''}`}>
-          Touchdown
-        </h2>
-        
-        <p className={`text-xl md:text-3xl text-primary/90 font-light tracking-wide mb-16 reveal-base delay-200 ${isRevealed ? 'is-revealed' : ''}`}>
-          "Jezero Crater base established. The new era begins."
-        </p>
+        {/* Typing Terminal Events */}
+        <div className="max-w-2xl mx-auto text-left mb-16 font-mono text-sm md:text-base space-y-2 bg-black/40 p-6 rounded-lg border border-white/10 backdrop-blur-sm min-h-[160px]">
+          {events.map((event, i) => (
+            <div key={i} className="text-green-400 flex items-start gap-3 animate-in slide-in-from-left-4 fade-in duration-300">
+              <span className="text-white mt-1">&#10003;</span>
+              <span>{event}</span>
+            </div>
+          ))}
+          {events.length < landingEvents.length && isRevealed && (
+            <div className="text-green-400 flex items-center gap-2">
+              <span className="w-2 h-4 bg-green-400 animate-[type-cursor_0.8s_infinite]" />
+            </div>
+          )}
+        </div>
 
-        <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto reveal-base delay-300 ${isRevealed ? 'is-revealed' : ''}`}>
+        {/* Touchdown Giant Text */}
+        <div className={`transition-all duration-1000 transform ${events.length === landingEvents.length ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}>
+          <h2 className="text-6xl md:text-8xl lg:text-9xl font-display font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 tracking-tighter mb-6 uppercase">
+            Touchdown
+          </h2>
+          
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-green-500 bg-green-500/20 text-green-400 mb-16 shadow-[0_0_30px_rgba(34,197,94,0.4)]">
+            <ShieldCheck className="w-6 h-6" />
+            <span className="font-mono text-lg font-bold tracking-widest uppercase">Confirmed</span>
+          </div>
+        </div>
+
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto transition-opacity duration-1000 ${events.length === landingEvents.length ? 'opacity-100' : 'opacity-0'}`}>
           {[
             { label: 'Surface Temp', val: '-60°C' },
             { label: 'Pressure', val: '6.1 mbar' },
             { label: 'Gravity', val: '3.72 m/s²' },
             { label: 'Wind Spd', val: '12 km/h' }
           ].map((stat, i) => (
-            <div key={i} className="glass-panel p-4 rounded-xl border border-white/5 backdrop-blur-md">
+            <div key={i} className="glass-panel p-4 rounded-xl border border-white/5 backdrop-blur-md hover:bg-white/10 transition-colors">
               <div className="text-xs font-mono text-muted-foreground uppercase mb-1">{stat.label}</div>
               <div className="text-lg font-display text-white font-medium">{stat.val}</div>
             </div>
