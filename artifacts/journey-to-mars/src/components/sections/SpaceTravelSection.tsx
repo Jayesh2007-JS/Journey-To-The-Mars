@@ -1,165 +1,169 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useScrollReveal } from '@/hooks/use-scroll-reveal';
-import { Info, Globe, CircleDot } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
 
-const milestones = [
-  { day: 1, title: "Lunar Gravity Assist", desc: "Slingshot maneuver around Earth's moon to gain crucial velocity.", pos: 15 },
-  { day: 90, title: "Solar Storm Evasion", desc: "Shields polarized to maximum to protect crew from C-class solar flare.", pos: 40 },
-  { day: 180, title: "Deep Space Comms", desc: "Switching to high-gain antenna network. Ping delay now 12 minutes.", pos: 65 },
-  { day: 210, title: "Deceleration Burn", desc: "Main engine retro-fire to align with Martian orbital insertion window.", pos: 90 },
+const MILESTONES = [
+  {
+    day: 1, pos: 8, title: 'Lunar Gravity Assist',
+    desc: 'Slingshot around the Moon adds 1.2 km/s. Last sight of Earth as a full disk.',
+    stat: '+1.2 KM/S', color: 'text-cyan-400', border: 'border-cyan-400/40', bg: 'bg-cyan-500/10',
+  },
+  {
+    day: 45, pos: 28, title: 'Solar Storm Evasion',
+    desc: 'C-class flare detected. Crew shelters in radiation vault. Shields at maximum.',
+    stat: 'C-CLASS', color: 'text-yellow-400', border: 'border-yellow-400/40', bg: 'bg-yellow-500/10',
+  },
+  {
+    day: 90, pos: 50, title: 'Mid-Course Correction',
+    desc: '12-second burn corrects trajectory by 0.003°. Ping delay now 8 minutes.',
+    stat: '8 MIN LAG', color: 'text-purple-400', border: 'border-purple-400/40', bg: 'bg-purple-500/10',
+  },
+  {
+    day: 180, pos: 72, title: 'Deep Space Comms',
+    desc: 'Switching to high-gain optical terminal. 200 Gbps link to Earth established.',
+    stat: '200 GBPS', color: 'text-green-400', border: 'border-green-400/40', bg: 'bg-green-500/10',
+  },
+  {
+    day: 210, pos: 92, title: 'Deceleration Burn',
+    desc: 'Main engine retro-fire for 22 minutes. Mars capture orbit achieved.',
+    stat: '-3.6 KM/S', color: 'text-orange-400', border: 'border-orange-400/40', bg: 'bg-orange-500/10',
+  },
+];
+
+const SPACE_FACTS = [
+  { label: 'Avg Velocity', val: '24,130 m/s' },
+  { label: 'Radiation Dose', val: '1.8 mSv/day' },
+  { label: 'Temp Outside', val: '-270 °C' },
+  { label: 'Distance Covered', val: '225M km' },
 ];
 
 export function SpaceTravelSection() {
-  const { ref, isRevealed } = useScrollReveal({ threshold: 0.3 });
-  const [activeMilestone, setActiveMilestone] = useState<number | null>(0);
-  const [warpSpeed, setWarpSpeed] = useState(false);
+  const { ref, isRevealed } = useScrollReveal({ threshold: 0.1 });
+  const [active, setActive] = useState(0);
+  const [shipPos, setShipPos] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number>(0);
 
-  // Trigger warp speed effect when section comes into view
+  // Animate ship to active milestone
   useEffect(() => {
-    if (isRevealed) {
-      setWarpSpeed(true);
-      const timer = setTimeout(() => setWarpSpeed(false), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [isRevealed]);
+    const target = MILESTONES[active].pos;
+    let current = shipPos;
+    const step = () => {
+      current += (target - current) * 0.08;
+      setShipPos(current);
+      if (Math.abs(target - current) > 0.1) rafRef.current = requestAnimationFrame(step);
+      else setShipPos(target);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [active]);
 
-  const currentPos = activeMilestone !== null ? milestones[activeMilestone].pos : 0;
-  const commsDelay = activeMilestone !== null ? (activeMilestone < 2 ? 4 : 12) : 4;
-
-  const constellations = [
-    { x: 10, y: 20 }, { x: 15, y: 30 }, { x: 25, y: 15 },
-    { x: 70, y: 80 }, { x: 80, y: 70 }, { x: 85, y: 85 },
-    { x: 80, y: 20 }, { x: 90, y: 25 }, { x: 85, y: 35 }
-  ];
+  const m = MILESTONES[active];
 
   return (
-    <section id="travel" ref={sectionRef} className={`relative min-h-screen flex flex-col justify-center py-20 px-6 transition-all duration-1000 ${warpSpeed ? 'animate-warp' : ''}`}>
-      
-      {/* Background Star Map Grid */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.4) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+    <section id="travel" ref={sectionRef} className="relative min-h-screen flex flex-col justify-center py-24 px-6 overflow-hidden">
 
-      {/* Constellation Pattern */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <svg className="w-full h-full opacity-30 animate-pulse">
-          <line x1="10%" y1="20%" x2="15%" y2="30%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-          <line x1="15%" y1="30%" x2="25%" y2="15%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-          <line x1="70%" y1="80%" x2="80%" y2="70%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-          <line x1="80%" y1="70%" x2="85%" y2="85%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-          <line x1="80%" y1="20%" x2="90%" y2="25%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-          <line x1="90%" y1="25%" x2="85%" y2="35%" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-        </svg>
-        {constellations.map((c, i) => (
-          <div key={i} className="absolute w-1 h-1 bg-white rounded-full shadow-[0_0_5px_#fff]" style={{ top: `${c.y}%`, left: `${c.x}%` }} />
-        ))}
-      </div>
+      {/* No canvas — use global StarField */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020810]/50 to-transparent pointer-events-none z-0" />
+      <div ref={ref} className="max-w-7xl mx-auto w-full z-10 relative">
 
-      {/* Warp Speed Streak Effect */}
-      {warpSpeed && (
-        <div className="absolute inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="w-full h-full" style={{
-            background: 'radial-gradient(circle, transparent 20%, #000 100%)',
-            boxShadow: 'inset 0 0 100px rgba(255,255,255,0.5)'
-          }} />
-          <div className="absolute w-[200vw] h-[2px] bg-white opacity-50 rotate-45 transform scale-x-[20] transition-transform duration-1000" />
-          <div className="absolute w-[200vw] h-[2px] bg-white opacity-50 -rotate-45 transform scale-x-[20] transition-transform duration-1000 delay-100" />
-        </div>
-      )}
-
-      <div ref={ref} className="max-w-6xl mx-auto w-full z-10">
-        <div className={`text-center mb-24 reveal-base ${isRevealed ? 'is-revealed' : ''}`}>
-          <h2 className="text-sm font-mono text-accent tracking-[0.3em] uppercase mb-4">Phase 02: Transit</h2>
-          <h3 className="text-4xl md:text-6xl font-display font-bold text-white mb-4">The Void Between</h3>
-          <div className="inline-block px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-full text-red-400 font-mono text-sm font-semibold tracking-wider">
-            COMMS DELAY: {commsDelay} MINUTES
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '0px 0px -80px 0px' }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className={`mb-16 reveal-base ${isRevealed ? 'is-revealed' : ''}`}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <span className="w-8 h-px bg-accent/60" />
+            <span className="text-[10px] font-mono text-accent tracking-[0.4em] uppercase">Phase 02 / Transit</span>
           </div>
-        </div>
+          <h2 className="text-5xl md:text-7xl font-display font-black text-white leading-none mb-3">
+            The <span className="text-gradient-space">Void</span>
+          </h2>
+          <p className="text-muted-foreground max-w-lg">7 months. 225 million kilometers. Five critical events between Earth and Mars.</p>
+        </motion.div>
 
-        {/* Milestone Timeline Path */}
-        <div className={`relative h-64 md:h-80 reveal-scale delay-200 ${isRevealed ? 'is-revealed' : ''}`}>
-          
-          <div className="absolute top-1/2 left-0 w-full flex items-center justify-between px-2 -translate-y-1/2 z-0">
-             <Globe className="w-8 h-8 text-blue-400 opacity-50" />
-             <CircleDot className="w-8 h-8 text-orange-500 opacity-50" />
-          </div>
-
-          {/* Main Line */}
-          <div className="absolute top-1/2 left-10 right-10 h-[2px] bg-white/10 -translate-y-1/2 rounded-full">
-            <div 
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-accent shadow-[0_0_15px_rgba(0,210,255,0.6)] transition-all duration-1000 ease-in-out" 
-              style={{ width: `${currentPos}%` }}
-            />
-          </div>
-
-          {/* Spacecraft Dot (SVG) */}
-          <div 
-            className="absolute top-1/2 -translate-y-1/2 w-8 h-8 z-20 transition-all duration-1000 ease-in-out flex items-center justify-center drop-shadow-[0_0_15px_rgba(0,210,255,0.8)]"
-            style={{ left: `calc(${currentPos}% + 40px)` }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-white transform rotate-90">
-              <path d="M12 2L2 22L12 18L22 22L12 2Z" fill="currentColor" />
-            </svg>
-            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-6 h-2 bg-blue-500 rounded-full blur-[3px] animate-pulse" />
-          </div>
-
-          {/* Nodes */}
-          {milestones.map((m, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveMilestone(idx)}
-              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 group outline-none z-10"
-              style={{ left: `calc(${m.pos}% + 40px)` }}
-            >
-              <div className="relative">
-                {activeMilestone === idx && (
-                  <div className="absolute inset-0 w-full h-full rounded-full border border-accent animate-ripple" />
-                )}
-                <div className={`w-4 h-4 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
-                  activeMilestone === idx 
-                    ? 'bg-background border-accent scale-150 shadow-[0_0_20px_rgba(0,210,255,0.8)]' 
-                    : 'bg-background border-white/30 hover:border-white/80 scale-100'
-                }`}>
-                  {activeMilestone === idx && <div className="w-1.5 h-1.5 bg-accent rounded-full" />}
-                </div>
-              </div>
-              
-              {/* Day Label */}
-              <div className={`absolute top-8 left-1/2 -translate-x-1/2 text-sm font-mono whitespace-nowrap transition-colors ${activeMilestone === idx ? 'text-accent font-bold' : 'text-muted-foreground'}`}>
-                DAY {m.day}
-              </div>
-            </button>
+        {/* Stats row */}
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 mb-12 reveal-base delay-100 ${isRevealed ? 'is-revealed' : ''}`}>
+          {SPACE_FACTS.map((f, i) => (
+            <div key={i} className="glass-panel rounded-xl p-4 border border-white/8">
+              <div className="text-[9px] font-mono text-muted-foreground tracking-widest mb-1">{f.label}</div>
+              <div className="text-lg font-display font-bold text-white">{f.val}</div>
+            </div>
           ))}
+        </div>
 
-          {/* Details Card */}
-          {activeMilestone !== null && (
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 md:px-0 transition-all duration-300">
-              <div className="glass-panel p-6 rounded-2xl shadow-2xl relative animate-in fade-in zoom-in-95 slide-in-from-bottom-10 group glitch-hover border-accent/20">
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-background border-b border-r border-accent/20 rotate-45 backdrop-blur-md" />
-                
-                <div className="text-[10px] font-mono text-accent mb-3 tracking-widest uppercase flex items-center justify-between border-b border-white/10 pb-2">
-                  <span>Data Transmission</span>
-                  <div className="flex items-end gap-0.5 h-3">
-                    <div className="w-1 bg-accent animate-[data-bar_0.8s_ease-in-out_infinite]" />
-                    <div className="w-1 bg-accent animate-[data-bar_1.2s_ease-in-out_infinite_0.2s]" />
-                    <div className="w-1 bg-accent animate-[data-bar_0.9s_ease-in-out_infinite_0.4s]" />
-                    <div className="w-1 bg-accent animate-[data-bar_1.5s_ease-in-out_infinite_0.1s]" />
-                  </div>
-                </div>
+        {/* Timeline track */}
+        <div className={`reveal-base delay-200 ${isRevealed ? 'is-revealed' : ''}`}>
+          <div className="relative mb-8">
+            {/* Track */}
+            <div className="relative h-2 bg-white/5 rounded-full mx-4 overflow-visible">
+              {/* Progress fill */}
+              <div className="absolute top-0 left-0 h-full rounded-full transition-all duration-700"
+                style={{ width: `${shipPos}%`, background: 'linear-gradient(90deg,#3b82f6,#00D2FF)', boxShadow: '0 0 12px rgba(0,210,255,0.6)' }} />
 
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-accent/10 rounded-xl group-hover:bg-accent/20 transition-colors">
-                    <Info className="w-6 h-6 text-accent" />
+              {/* Milestone dots */}
+              {MILESTONES.map((ms, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActive(i)}
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 group outline-none z-10"
+                  style={{ left: `${ms.pos}%` }}
+                >
+                  {active === i && <div className={`absolute inset-0 w-5 h-5 rounded-full border ${ms.border} animate-ping opacity-50 scale-150`} />}
+                  <div className={`relative w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${active === i ? `${ms.border} ${ms.bg} scale-125` : 'border-white/20 bg-background hover:border-white/50 hover:scale-110'}`}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${active === i ? `bg-current ${ms.color}` : 'bg-white/30'}`} />
                   </div>
-                  <div>
-                    <h4 className="text-xl font-display font-semibold text-white mb-2">{milestones[activeMilestone].title}</h4>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {milestones[activeMilestone].desc}
-                    </p>
+                  <div className={`absolute top-7 left-1/2 -translate-x-1/2 text-[9px] font-mono whitespace-nowrap transition-colors ${active === i ? ms.color : 'text-white/30'}`}>
+                    D{ms.day}
                   </div>
+                </button>
+              ))}
+
+              {/* Spacecraft */}
+              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 transition-none"
+                style={{ left: `${shipPos}%` }}>
+                <div className="relative">
+                  <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-6 h-1 bg-gradient-to-l from-cyan-400/80 to-transparent rounded-full blur-sm" />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="rotate-90 drop-shadow-[0_0_8px_rgba(0,210,255,0.9)]">
+                    <path d="M12 2L4 20L12 16L20 20L12 2Z" fill="white"/>
+                  </svg>
                 </div>
               </div>
             </div>
-          )}
+
+            {/* Earth / Mars labels */}
+            <div className="flex justify-between mt-8 px-2 text-[9px] font-mono text-white/30 tracking-widest">
+              <span>🌍 EARTH</span>
+              <span>MARS 🔴</span>
+            </div>
+          </div>
+
+          {/* Active milestone card */}
+          <div key={active} className="glass-panel rounded-2xl p-6 border border-white/10 animate-in fade-in duration-300 max-w-2xl mx-auto">
+            <div className="flex items-start gap-4">
+              <div className={`w-12 h-12 rounded-xl border ${m.border} ${m.bg} flex items-center justify-center shrink-0`}>
+                <span className={`text-lg font-display font-black ${m.color}`}>{active + 1}</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-[9px] font-mono text-muted-foreground tracking-widest">DAY {m.day} OF 210</div>
+                  <div className={`text-sm font-display font-bold ${m.color}`}>{m.stat}</div>
+                </div>
+                <h3 className="text-xl font-display font-black text-white mb-2">{m.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{m.desc}</p>
+              </div>
+            </div>
+            {/* Nav dots */}
+            <div className="flex justify-center gap-2 mt-5">
+              {MILESTONES.map((_, i) => (
+                <button key={i} onClick={() => setActive(i)}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${i === active ? 'bg-white scale-125' : 'bg-white/20 hover:bg-white/50'}`} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
